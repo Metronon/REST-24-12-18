@@ -6,6 +6,8 @@ import com.ll.rest.global.exceptions.ServiceException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class MemberService {
@@ -18,9 +20,10 @@ public class MemberService {
     public Member join(String username, String password, String nickname) {
         memberRepository
                 .findByUsername(username)
-                .ifPresent(existingMember -> {
-                    throw new ServiceException("400-1", "해당 아이디는 이미 사용중입니다.");
+                .ifPresent(usernameDuplicate -> {
+                    throw new ServiceException("400-1", "해당 username은 이미 사용중입니다.");
                 });
+
 
         Member member = Member.builder()
                 .username(username)
@@ -29,5 +32,9 @@ public class MemberService {
                 .build();
 
         return memberRepository.save(member);
+    }
+
+    public Optional<Member> findByUsername(String username) {
+        return memberRepository.findByUsername(username);
     }
 }
